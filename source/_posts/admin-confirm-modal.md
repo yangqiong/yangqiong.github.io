@@ -1,7 +1,7 @@
 ---
 title: 管理后台确认对话框最佳实践
 date: 2019-09-22 15:34:03
-tags:
+tags: 管理后台
 ---
 
 管理后台开发中如上图所示的一种对话框，比如说驳回审核，添加评论，审核确定等。其中涉及：
@@ -29,7 +29,7 @@ tags:
 1. body: 把`{value, setValue}`给到外部用于Input的处理，需返回对话框主题显示的UI
 2. onOk: 回调函数包含`value`，用于请求发送；函数返回true则表示成功隐藏对话框，否则不隐藏
 
-``` [javascript] [title] [url] [link text]
+``` javascript
 import React, { useState } from 'react';
 import { Modal } from 'antd';
 import ReactDOM from 'react-dom'
@@ -79,7 +79,7 @@ export default ConfirmModal;
 ```
 
 ## 调用ConfirmModal
-```
+``` javascript
 export default () => {
   let formItemLayout = {
     labelCol: { span: 4 },
