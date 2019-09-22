@@ -3,8 +3,8 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 杨琼的笔记
-subtitle:
+title: 杨琼的博客
+subtitle: 焦躁的每一天
 description:
 keywords:
 author: 杨琼
@@ -13,7 +13,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: https://yangqiong.github.io
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
