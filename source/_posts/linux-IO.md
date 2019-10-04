@@ -1,7 +1,7 @@
 ---
 title: 文件IO和系统IO 
 date: 2019-10-03 08:10:41
-tags:
+tags: Linux
 ---
 
 * 文件I/O: 不带缓冲的I/O，每次read和write都调用内核的系统调用。
