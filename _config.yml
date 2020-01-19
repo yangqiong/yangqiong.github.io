@@ -4,10 +4,10 @@
 
 # Site
 title: 杨琼的博客
-subtitle: 焦躁的每一天
+subtitle: 前端工程师 & 编程爱好者
 description:
-keywords:
-author: 
+keywords: 杨琼，杨琼的博客
+author: 杨琼
 language: zh-Hans
 timezone:
 
@@ -45,19 +45,19 @@ highlight:
   auto_detect: false
   tab_replace:
 prism_plugin:
-  mode: 'preprocess'    # realtime/preprocess
-  theme: 'default'
-  line_number: true    # default false
-  
+  mode: "preprocess" # realtime/preprocess
+  theme: "default"
+  line_number: true # default false
+
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
 # order_by: Posts order. (Order by date descending by default)
 index_generator:
-  path: ''
+  path: ""
   per_page: 10
   order_by: -date
-  
+
 # Category & Tag
 default_category: uncategorized
 category_map:
