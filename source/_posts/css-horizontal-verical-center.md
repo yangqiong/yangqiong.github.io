@@ -1,10 +1,12 @@
 ---
 title: 子元素水平垂直居中
 date: 2020-02-12 19:07:36
-tags: CSS，前端面试题
+tags: 
+  - CSS
+  - 前端面试题
 ---
 
-1. flex布局
+#### 1.flex布局
 ```
 .parent {
   display: flex;
@@ -14,7 +16,7 @@ tags: CSS，前端面试题
 }
 ```
 
-2. transform偏移
+#### 2.transform偏移
 ```
 .parent {
   position: relative;
@@ -28,7 +30,7 @@ tags: CSS，前端面试题
 }
 ```
 
-3. margin偏移（如果子元素的宽度固定）
+#### 3.margin偏移（如果子元素的宽度固定）
 ```
 .parent {
   position: relative;

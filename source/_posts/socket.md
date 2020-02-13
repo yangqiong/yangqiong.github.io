@@ -1,7 +1,9 @@
 ---
 title: 套接字socket
 date: 2019-10-05 07:43
-tags: Linux, 计算机网络
+tags: 
+ - Linux
+ - 计算机网络
 ---
 
 

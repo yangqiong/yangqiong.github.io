@@ -1,7 +1,9 @@
 ---
 title: CSS样式层叠顺序
 date: 2020-02-12 19:07:36
-tags: CSS，前端面试题
+tags: 
+  - CSS
+  - 前端面试题
 ---
 
 1. 当non-positioned原色（值不是relative,absolute,fixed等）和z-index（当然就很可能就不会出现重叠情况），根据元素出现的顺序。
