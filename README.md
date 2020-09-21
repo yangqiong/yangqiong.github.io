@@ -1,7 +1,12 @@
 ## 文章列表
 
 ### 2020
-
+- [Promise执行顺序](https://yangqiong.github.io/2020/02/13/javascript-promise/)
+- [子元素水平垂直居中](https://yangqiong.github.io/2020/02/12/css-horizontal-verical-center/)
+- [CSS样式层叠顺序](https://yangqiong.github.io/2020/02/12/css-vertical-order/)
+- [Javascript 事件机制](https://yangqiong.github.io/2020/01/25/javascript-eventloop/)
+- [HTML事件机制](https://yangqiong.github.io/2020/01/20/html-event/)
+- [React setState](https://yangqiong.github.io/2020/01/20/react-setState/)
 - [React 生命周期](https://yangqiong.github.io/2020/01/18/react-lifecycle/)
 
 ### 2019
