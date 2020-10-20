@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="IPv4，UDP，TCP等头部中都有一个16位（2字节）的校验和字段，用于差错检测，它能以相当高的概率确定接受到的消息是否与发送的相匹配。 计算方式 对指定数据以16位分组，依次想加。 如果产生进位（第17位为1），则去掉，且末位加1。 最终结果取反就是校验和的值。   发送方计算校验和字段时，校验和字段时置位0； 接收方将全部数据（包括校验和）加在一起，如果没有引入差错，则和为FFFF。如果任何">
+<meta name="keywords" content="计算机网络">
+<meta property="og:type" content="article">
+<meta property="og:title" content="协议校验和checksum">
+<meta property="og:url" content="https://yangqiong.github.io/2019/10/05/checksum/index.html">
+<meta property="og:site_name" content="杨琼的博客">
+<meta property="og:description" content="IPv4，UDP，TCP等头部中都有一个16位（2字节）的校验和字段，用于差错检测，它能以相当高的概率确定接受到的消息是否与发送的相匹配。 计算方式 对指定数据以16位分组，依次想加。 如果产生进位（第17位为1），则去掉，且末位加1。 最终结果取反就是校验和的值。   发送方计算校验和字段时，校验和字段时置位0； 接收方将全部数据（包括校验和）加在一起，如果没有引入差错，则和为FFFF。如果任何">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://yangqiong.github.io/Users/yangqiong/Github/yangqiong.github.io/source/images/ip-checksum.png">
+<meta property="og:updated_time" content="2020-10-20T07:22:38.716Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="协议校验和checksum">
+<meta name="twitter:description" content="IPv4，UDP，TCP等头部中都有一个16位（2字节）的校验和字段，用于差错检测，它能以相当高的概率确定接受到的消息是否与发送的相匹配。 计算方式 对指定数据以16位分组，依次想加。 如果产生进位（第17位为1），则去掉，且末位加1。 最终结果取反就是校验和的值。   发送方计算校验和字段时，校验和字段时置位0； 接收方将全部数据（包括校验和）加在一起，如果没有引入差错，则和为FFFF。如果任何">
+<meta name="twitter:image" content="https://yangqiong.github.io/Users/yangqiong/Github/yangqiong.github.io/source/images/ip-checksum.png">
+  <link rel="canonical" href="https://yangqiong.github.io/2019/10/05/checksum/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>协议校验和checksum | 杨琼的博客</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">杨琼的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">前端工程师 & 编程爱好者</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="https://yangqiong.github.io/2019/10/05/checksum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="杨琼">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="杨琼的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">协议校验和checksum
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-10-05 10:30:36" itemprop="dateCreated datePublished" datetime="2019-10-05T10:30:36+00:00">2019-10-05</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-20 07:22:38" itemprop="dateModified" datetime="2020-10-20T07:22:38+00:00">2020-10-20</time>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>IPv4，UDP，TCP等头部中都有一个16位（2字节）的<strong>校验和</strong>字段，用于差错检测，它能以相当高的概率确定接受到的消息是否与发送的相匹配。</p>
+<h2 id="计算方式"><a href="#计算方式" class="headerlink" title="计算方式"></a>计算方式</h2><ol>
+<li>对指定数据以16位分组，依次想加。</li>
+<li>如果产生进位（第17位为1），则去掉，且末位加1。</li>
+<li>最终结果取反就是校验和的值。</li>
+</ol>
+<ul>
+<li>发送方计算校验和字段时，校验和字段时置位0；</li>
+<li>接收方将全部数据（包括校验和）加在一起，如果没有引入差错，则和为FFFF。如果任何比特之一为0，则表示出现了差错。</li>
+</ul>
+<h3 id="IP协议"><a href="#IP协议" class="headerlink" title="IP协议"></a>IP协议</h3><ul>
+<li>IPv4协议头部校验和字段仅计算<strong>IPv4头部20个字节</strong>，意味着IP协议不检查IPv4数据报有效载荷的正确性。意味着上层协议（TCP，UDP）需通过自己的数据完整性校验机制。</li>
+<li>IPv6头部没有任何校验和字段。(1. 光纤传输位出错比较少见 2. 上层协议计算自己的校验和)</li>
+<li>IPv4数据报经过一台路由器，TTL字段减一带来的结果是其头部校验和必须改变。</li>
+</ul>
+<h3 id="IPv4校验和例子"><a href="#IPv4校验和例子" class="headerlink" title="IPv4校验和例子"></a>IPv4校验和例子</h3><p><img src="/Users/yangqiong/Github/yangqiong.github.io/source/images/ip-checksum.png" alt="ip-checksum"></p>
+<p>IP头部分别为：0x4502, 0x00a8, 0x156a, 0x4000, 0x3006, 0x71ab（校验和）, 0xa3b1, 0x5e77, 0xc0a8, 0x0068</p>
+<p>发送端计算校验和：</p>
+<p>0x4502 + 0x00a8 = 0x45aa</p>
+<p>0x45aa + 0x156a = 0x5b14</p>
+<p>0x5b14 + 0x4000 = 0x9b14</p>
+<p>0x9b14 + 0x3006 = 0xcb1a</p>
+<p>0xcb1a + 0x0000（校验和置位0）= 0xcb1a</p>
+<p>0xcb1a + 0xa3b1 = 0x16ecb，产生进位去掉，末位加1，0x6ecc</p>
+<p>0x6ecc + 0x5e77 = 0xcd43</p>
+<p>0xcd43 + 0xc0a8 = 0x18deb，产生进位去掉，末位加1，0x8dec</p>
+<p>0x8dec + 0x0068 = 0x8e54, 最终取反得到校验和：0x71ab </p>
+<p>或者</p>
+<p>0x4502 + 0x00a8 + 0x156a + 0x4000 + 0x3006 + 0xa3b1 + 0x5e77 + 0xc0a8 + 0x0068 = 0x28e52</p>
+<p>末位加上进位0x8e52 + 0x2 = 0x8e64，最终取反得到校验和：0x71ab </p>
+<p>接收端校验校验和：</p>
+<p>0x8e57 + 0x71ab = 0xFFFF，全为1，表示无差错。</p>
+<h3 id="UDP协议"><a href="#UDP协议" class="headerlink" title="UDP协议"></a>UDP协议</h3><p>UDP协议头部校验和字段计算包括三部分：</p>
+<ol>
+<li>UDP伪头部：包括从IPv4拿到的源IP地址（16位），目的地IP地址（16位），零（2位）+UDP协议号17（4位）+ UDP长度（8位）</li>
+<li>UDP头部</li>
+<li>UDP数据（末位补0填充满16位的整数倍）</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/计算机网络/" rel="tag"># 计算机网络</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/10/05/socket/" rel="next" title="套接字socket">
+                  <i class="fa fa-chevron-left"></i> 套接字socket
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/11/13/ECF/" rel="prev" title="异常控制流">
+                  异常控制流 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#计算方式"><span class="nav-number">1.</span> <span class="nav-text">计算方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IP协议"><span class="nav-number">1.1.</span> <span class="nav-text">IP协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IPv4校验和例子"><span class="nav-number">1.2.</span> <span class="nav-text">IPv4校验和例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP协议"><span class="nav-number">1.3.</span> <span class="nav-text">UDP协议</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">杨琼</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">杨琼</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+  <script>
+    var _mtac = {};
+    (function() {
+      var mta = document.createElement("script");
+      mta.src = "https://pingjs.qq.com/h5/stats.js";
+      mta.setAttribute("name", "MTAH5");
+      mta.setAttribute("sid", "500697848");
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(mta, s);
+    })();
+  </script>
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
